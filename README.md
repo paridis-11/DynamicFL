@@ -7,5 +7,5 @@ Towards Fairness-aware and Privacy-preserving Enhanced Collaborative Learning fo
 
 Here is an example for PyTorch: 
 ```
-python main.py
+python main.py --node_num 10
 ```
