@@ -7,5 +7,5 @@ Towards Fairness-aware and Privacy-preserving Enhanced Collaborative Learning fo
 
 Here is an example for PyTorch: 
 ```
-python main.py --node_num 10
+python main.py --node_num 10 --dataset cifar10 --R 100 --batchsize 64
 ```
