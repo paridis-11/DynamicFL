@@ -68,8 +68,6 @@ class Recorder(object):
 
             self.get_a_better[node.num] = 0
         if node.num == 0:
-            print(f'Server acc: {self.val_acc[str(node.num)]}')
-            print(f'Server loss: {self.val_loss[str(node.num)]}')
             print('Server Best Accuracy = {:.2f}%'.format(self.acc_best[node.num]))
         else:
             print(f'Node {node.num} acc: {self.val_acc[str(node.num)]}')
