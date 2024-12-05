@@ -32,6 +32,7 @@ python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_1B --device cud
 ```
 
 **2.2 Training with Non-IID Data Partitions**
+
 You can simulate non-IID (non-Independent and Identically Distributed) data by using the --partition parameter and setting the Dirichlet distribution parameter (--dir). Below are some examples:
 
 
@@ -49,6 +50,7 @@ python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device c
 ```
 
 **2.3 Training with Different Device Ratios**
+
 You can allocate computational resources across devices in specific ratios using the --device_ratio parameter. Below are some examples:
 
 ```python
@@ -66,6 +68,7 @@ python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device c
 ```
 
 **2.4 Training with Different Device Counts**
+
 You can vary the number of devices (or nodes) in your distributed setup using the --node_num parameter. Below are some examples:
 
 ```python
@@ -88,7 +91,8 @@ python dyfl_vit_memory_friendly.py --dataset bloodcell --device cpu --model vit_
 
 ```
 
-**3. Contact**
+## **3. Contact**
+
 For any questions or issues, please open an issue on the GitHub repository.
 
 
