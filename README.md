@@ -21,13 +21,13 @@ You can train the model with different ViT (Vision Transformer) architectures by
 
 ```python
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_tiny --device cuda:0
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_tiny --device cuda:0
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_small --device cuda:0
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_small --device cuda:0
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_1B --device cuda:0
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_1B --device cuda:0
 
 ```
 
@@ -37,15 +37,15 @@ You can simulate non-IID (non-Independent and Identically Distributed) data by u
 
 ```python
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:2 --partition dir --dir 0.1
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:2 --partition dir --dir 0.1
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:2 --partition dir --dir 0.3
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:2 --partition dir --dir 0.3
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --partition dir --dir 0.5
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --partition dir --dir 0.5
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --partition dir --dir 0.7
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --partition dir --dir 0.7
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --partition dir --dir 0.9
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --partition dir --dir 0.9
 ```
 
 **2.3 Training with Different Device Ratios**
@@ -53,15 +53,15 @@ You can allocate computational resources across devices in specific ratios using
 
 ```python
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 7:2:1
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 7:2:1
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:1 --device_ratio 5:2:3
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:1 --device_ratio 5:2:3
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 4:1:5
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 4:1:5
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 4:3:3
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 4:3:3
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --device_ratio 3:6:1
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --device_ratio 3:6:1
 
 ```
 
@@ -70,11 +70,11 @@ You can vary the number of devices (or nodes) in your distributed setup using th
 
 ```python
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 90 --model Vit_Base --device cuda:0
+python dyfl_vit.py --dataset bloodcell --node_num 90 --model Vit_Base --device cuda:0
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 180 --model Vit_Base --device cuda:0
+python dyfl_vit.py --dataset bloodcell --node_num 180 --model Vit_Base --device cuda:0
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --node_num 360 --model Vit_Base --device cuda:2
+python dyfl_vit.py --dataset bloodcell --node_num 360 --model Vit_Base --device cuda:2
 
 ```
 
