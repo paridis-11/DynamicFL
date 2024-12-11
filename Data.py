@@ -10,8 +10,9 @@ from medmnist import INFO, Evaluator
 from PIL import Image
 from scipy.stats import dirichlet
 from torch.utils.data import DataLoader, Subset, random_split
-from torchvision import transforms
+from torchvision import transforms, datasets
 from torchvision.datasets import CIFAR10, CIFAR100, MNIST, utils
+from sklearn.model_selection import train_test_split
 
 
 def Dataset(args):
@@ -74,11 +75,51 @@ def Dataset(args):
         val_trans = transforms.Compose([
             transforms.Resize((args.shape, args.shape)),
             transforms.ToTensor(),
-             transforms.Lambda(lambda x: x.repeat(3, 1, 1)),
+            transforms.Lambda(lambda x: x.repeat(3, 1, 1)),
             transforms.Normalize(mean=[.5], std=[.5])
         ])
         trainset = DataClass(root="./data", split='train', transform=tra_trans, download=True, size = 224)
         testset = DataClass(root="./data", split='test', transform=val_trans, download=True, size = 224)
+
+    if args.dataset.lower() == 'covid19':  # 私人数据集
+        args.num_classes = 4  # COVID, lung, normal, viral Pneumonia 四个类别
+        
+        # 数据增强和预处理
+        tra_trans = transforms.Compose([
+            transforms.Resize((args.shape, args.shape)),
+            transforms.RandomCrop(args.shape, padding=4),
+            transforms.RandomHorizontalFlip(),
+            transforms.RandAugment(),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,)) 
+        ])
+        val_trans = transforms.Compose([
+            transforms.Resize((args.shape, args.shape)),
+            transforms.ToTensor(),
+            transforms.Normalize((0.5,), (0.5,))
+        ])
+
+        # 加载数据，只针对 `images` 文件夹
+        dataset = datasets.ImageFolder(
+            root="./data/COVID-19",  # 主数据目录
+            transform=tra_trans  # 初始使用训练数据的变换
+        )
+
+        # 获取所有样本的索引
+        indices = list(range(len(dataset)))
+
+        # 使用 sklearn 的 train_test_split 划分训练集和测试集
+        train_indices, test_indices = train_test_split(
+            indices, test_size=0.2, stratify=[dataset.targets[i] for i in indices], random_state=42
+        )
+
+        # 创建 Subset 数据集
+        trainset = Subset(dataset, train_indices)
+        testset = Subset(dataset, test_indices)
+
+        # 替换测试集的 transform 为验证集预处理
+        testset.dataset.transform = val_trans
+
 
     elif args.dataset.lower() == 'bloodcell':
         args.num_classes = 8
