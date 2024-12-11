@@ -15,11 +15,11 @@ This project uses three publicly available datasets. Please follow the steps bel
    - After extraction, the folder structure should look like:  
      ```
      data/
-       covid/
+       COVID-19/
          COVID/
          NORMAL/
-         LUNG_OPACITY/
-         VIRAL_PNEUMONIA/
+         Lung_Opacity/
+         Viral Pneumonia/
      ```  
 4. Inside each of the class folders (`COVID`, `NORMAL`, `LUNG_OPACITY`, `VIRAL_PNEUMONIA`), **delete the `masks` subfolder** because this project focuses only on classification tasks and does not involve segmentation.  
 
