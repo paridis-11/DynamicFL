@@ -17,7 +17,7 @@ This project uses three publicly available datasets. Please follow the steps bel
      data/
        COVID-19/
          COVID/
-         NORMAL/
+         Normal/
          Lung_Opacity/
          Viral Pneumonia/
      ```  
