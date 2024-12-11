@@ -35,6 +35,7 @@ To set up the environment, ensure you have Python installed, then install the re
 
 ```bash
 conda create -n dyfl python=3.9
+conda activate dyfl
 pip install -r requirements.txt
 
 ```
