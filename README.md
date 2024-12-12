@@ -31,7 +31,7 @@ This project uses three publicly available datasets. Please follow the steps bel
 
 
 ### **2. Install Dependencies**
-To set up the environment, ensure you have Python installed, then install the required libraries using the `requirements.txt` file:
+To set up the environment, ensure you have Python and Anaconda installed, then install the required libraries using the `requirements.txt` file:
 
 ```bash
 conda create -n dyfl python=3.9
