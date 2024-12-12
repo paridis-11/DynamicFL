@@ -66,15 +66,15 @@ You can simulate non-IID (non-Independent and Identically Distributed) data by u
 
 ```python
 
-python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:2 --partition dir --dir 0.1
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --partition dir --dir 0.1
 
-python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:2 --partition dir --dir 0.3
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --partition dir --dir 0.3
 
-python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --partition dir --dir 0.5
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --partition dir --dir 0.5
 
-python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --partition dir --dir 0.7
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --partition dir --dir 0.7
 
-python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --partition dir --dir 0.9
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --partition dir --dir 0.9
 ```
 
 **3.3 Training with Different Device Ratios**
@@ -85,13 +85,13 @@ You can allocate computational resources across devices in specific ratios using
 
 python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 7:2:1
 
-python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:1 --device_ratio 5:2:3
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 5:2:3
 
 python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 4:1:5
 
 python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 4:3:3
 
-python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:3 --device_ratio 3:6:1
+python dyfl_vit.py --dataset bloodcell --node_num 30 --model Vit_Base --device cuda:0 --device_ratio 3:6:1
 
 ```
 
@@ -105,7 +105,7 @@ python dyfl_vit.py --dataset bloodcell --node_num 90 --model Vit_Base --device c
 
 python dyfl_vit.py --dataset bloodcell --node_num 180 --model Vit_Base --device cuda:0
 
-python dyfl_vit.py --dataset bloodcell --node_num 360 --model Vit_Base --device cuda:2
+python dyfl_vit.py --dataset bloodcell --node_num 360 --model Vit_Base --device cuda:0
 
 ```
 
