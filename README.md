@@ -8,7 +8,7 @@
 ### **1. Data**
 This project uses three publicly available datasets. Please follow the steps below to download and prepare the datasets:
 
-#### **Dataset 1: COVID-19 Radiography Database**  
+#### **Dataset 1: ChestXray**  
 1. Download the dataset from [Kaggle](https://www.kaggle.com/datasets/tawsifurrahman/covid19-radiography-database/data).  
 2. Create a folder named `data` in the root directory of this project.  
 3. Extract the downloaded dataset into the `data/covid` directory.  
