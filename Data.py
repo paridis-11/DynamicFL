@@ -62,7 +62,7 @@ def Dataset(args):
     elif args.dataset.lower() == 'chestxray':  
         args.num_classes = 4  
         
-        # 数据增强和预处理
+
         tra_trans = transforms.Compose([
             transforms.Resize((args.shape, args.shape)),
             transforms.RandomCrop(args.shape, padding=4),
@@ -121,7 +121,7 @@ def visualize_data_distribution(trainset, splited_trainset, args):
     targets = np.array(trainset.targets)
     num_classes = len(np.unique(targets))
     
-    # 统计每个客户端的标签分布
+
     client_distribution = []
     client_data_counts = []
     for i, subset in enumerate(splited_trainset):
@@ -129,11 +129,11 @@ def visualize_data_distribution(trainset, splited_trainset, args):
         client_distribution.append(np.bincount(subset_targets, minlength=num_classes))
         client_data_counts.append(len(subset))
 
-    # 将每个客户端的数据样本数记录到 W&B
+
     for i, count in enumerate(client_data_counts):
         wandb.log({f'client_{i+1}_data_count': count})
 
-    # 绘制每个客户端的标签分布
+
     fig, axs = plt.subplots(1, args.node_num, figsize=(15, 5), sharey=True)
     for i, dist in enumerate(client_distribution):
         axs[i].bar(range(num_classes), dist)
@@ -143,10 +143,10 @@ def visualize_data_distribution(trainset, splited_trainset, args):
 
     plt.tight_layout()
 
-    # 将图像上传到 W&B
+
     wandb.log({"data_distribution": wandb.Image(fig)})
 
-    plt.close(fig)  # 关闭图像，释放内存
+    plt.close(fig)  
 
 
 class Data(object):
