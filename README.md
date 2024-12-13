@@ -116,7 +116,7 @@ If you want to run only on CPU, you can set the --device parameter to cpu. Note:
 
 ```python
 
-python dyfl_vit_memory_friendly.py --dataset bloodcell --device cpu --model vit_tiny
+python dyfl_vit.py --dataset bloodcell --device cpu --model vit_tiny
 
 ```
 ---
