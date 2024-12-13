@@ -37,6 +37,7 @@ To set up the environment, ensure you have Python and Anaconda installed, then i
 conda create -n dyfl python=3.9
 conda activate dyfl
 pip install -r requirements.txt
+pip install --upgrade wandb protobuf
 
 ```
 ---
