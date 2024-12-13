@@ -473,7 +473,7 @@ if __name__ == "__main__":
             attn_drop_rate=0.1,
         )
 
-    input_tensor = torch.randn(1, 3, 224, 224)  # 模拟输入图像
+    input_tensor = torch.randn(1, 3, 224, 224) 
 
 
 
