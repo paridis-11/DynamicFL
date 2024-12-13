@@ -1,5 +1,5 @@
 import logging
-import timm  # 用于加载预训练的 ViT 模型
+import timm 
 import torch
 import torchvision
 import yaml
@@ -64,32 +64,6 @@ def build_model(args, model_name, pretrained=False, pretrained_ckpt=''):
                         attn_drop_rate = 0.1
         )
 
-
-    elif model_name.lower() == 'vit_huge':
-        model = VisionTransformer(
-                img_size=224,
-                patch_size=16,
-                num_classes=args.num_classes,
-                embed_dim=1280,
-                depth=32,
-                num_heads=16,
-                mlp_ratio=4,
-                drop_rate=0.1,
-                attn_drop_rate=0.1,
-            )
-
-    elif model_name.lower() == 'vit_large':
-        model = VisionTransformer(
-                img_size=224,
-                patch_size=16,
-                num_classes=args.num_classes,
-                embed_dim=1024,
-                depth=24,
-                num_heads=16,
-                mlp_ratio=4,
-                drop_rate=0.1,
-                attn_drop_rate=0.1,
-            )
 
     elif model_name.lower() == 'vit_1b':
         model = VisionTransformer(
