@@ -63,10 +63,9 @@ class Node(object):
             self.interaction_model = copy.deepcopy(self.model).to(self.device)
 
     def delete_model(self):
-        # 删除模型以释放显存
         del self.model
         del self.optimizer
-        torch.cuda.empty_cache()  # 清空未使用的显存缓存
+        torch.cuda.empty_cache()
 
 
     def convert(self):
@@ -123,19 +122,15 @@ class Global_Node(object):
 
     def merge(self, Edge_nodes):
         Node_State_List = [copy.deepcopy(Edge_nodes[i].model.state_dict()) for i in range(len(Edge_nodes))]
-        # 局部模型切换回全局模型结构后，其模型内部依然含有之前的那些层，需要把那些层删掉。
         for i in range(len(Edge_nodes)):
             # keys_to_remove = [key for key in Node_State_List[i].keys() if "conv.dbb" in key]
             keys_to_remove = [key for key in Node_State_List[i].keys() if "dbb" in key]
             for key in keys_to_remove:
-                # 删除扩增层
                 del Node_State_List[i][key]
-            # 更改合并的deployed卷积的名字
             Node_State_List[i] = {key.replace('conv_deployed.', ''): value for key, value in Node_State_List[i].items()}
 
         self.Dict = Node_State_List[0]
         # print('Edge_nodes[i]):', self.Dict.keys())
-        # 聚合
         for key in self.Dict.keys():
             for i in range(1, len(Edge_nodes)):
                 self.Dict[key] += Node_State_List[i][key]
@@ -145,13 +140,11 @@ class Global_Node(object):
         self.model.load_state_dict(self.Dict)
 
     def merge_now(self, Edge_node):
-        # 为了节省显存，因此在每次局部更新结束后就执行融合，从而可以释放掉客户端模型所占显存
         Edge_node_State_List = Edge_node.model.state_dict()
         current_num = Edge_node.num
         if current_num == 1:
             for key in self.Dict:
                 self.Dict[key] = torch.zeros_like(self.Dict[key])
-            print('第一个节点，零初始化')
 
         for key in self.Dict.keys():
             self.Dict[key] += Edge_node_State_List[key]
@@ -163,18 +156,14 @@ class Global_Node(object):
 
         if current_num == self.args.node_num:
             self.model.load_state_dict(self.Dict)
-            print('更新至全局模型')
 
 
     def cnn_merge_now(self, Edge_node):
-        # 为了节省显存，因此在每次局部更新结束后就执行融合，从而可以释放掉客户端模型所占显存
         Edge_node_State_List = Edge_node.model.state_dict()
 
         keys_to_remove = [key for key in Edge_node_State_List.keys() if "dbb" in key]
         for key in keys_to_remove:
-            # 删除扩增层
             del Edge_node_State_List[key]
-        # 更改合并的deployed卷积的名字
         Edge_node_State_List = {key.replace('conv_deployed.', ''): value for key, value in Edge_node_State_List.items()}
 
 
@@ -182,7 +171,6 @@ class Global_Node(object):
         if current_num == 1:
             for key in self.Dict:
                 self.Dict[key] = torch.zeros_like(self.Dict[key])
-            print('第一个节点，零初始化')
 
         for key in self.Dict.keys():
             self.Dict[key] += Edge_node_State_List[key]
@@ -194,51 +182,8 @@ class Global_Node(object):
 
         if current_num == self.args.node_num:
             self.model.load_state_dict(self.Dict)
-            print('更新至全局模型')
 
 
-
-
-
-
-
-        
-
-
-
-    # def update(self, Edge_node):
-
-    #     self.edge_node[Edge_node.num-1] = Edge_node.model
-
-    # def init_processing(self):
-    #     assert self.init
-    #     ## warmup
-    #     Node_State_List = [copy.deepcopy(self.edge_node[i].state_dict()) for i in self.save]
-    #     self.Dict = Node_State_List[0]
-    #     for key in self.Dict.keys():
-    #         if 'num_batches_tracked' in key:
-    #             continue
-
-    #         for i in range(1, len(Node_State_List)):
-    #             self.Dict[key] += Node_State_List[i][key]
-
-    #         self.Dict[key] /= float(len(Node_State_List))
-
-    #     self.model.load_state_dict(self.Dict)
-
-    # def processing(self):
-
-    #     Node_State_List = [copy.deepcopy(self.edge_node[i].state_dict()) for i in range(self.args.node_num)]
-    #     self.Dict = Node_State_List[0]
-    #     for key in self.Dict.keys():
-    #         if 'num_batches_tracked' in key:
-    #             continue
-
-    #         for i in range(1, self.args.node_num):
-    #             self.Dict[key] += Node_State_List[i][key]
-
-    #         self.Dict[key] /= self.args.node_num
-    #     self.model.load_state_dict(self.Dict)
 
         
 
