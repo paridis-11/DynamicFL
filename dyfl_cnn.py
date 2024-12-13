@@ -22,11 +22,11 @@ args.capacity_values = generate_node_list(args)
 
 if args.wandb ==1:
     import wandb
-    # 构建运行名称，包含超参数信息
+
     run_name = f"{args.dataset}_num-{args.node_num}_lepoch-{args.E}_lr-{args.lr}_note-{args.notes}"
     wandb.init(project="DyFL", name = run_name, entity="paridis")
-    config_dict = vars(args)  # 将 args 转换为字典
-    wandb.config.update(config_dict)  # 更新 config 的属性
+    config_dict = vars(args) 
+    wandb.config.update(config_dict)  
 
 Data = Data(args)
 Train = Trainer(args)
