@@ -12,20 +12,11 @@ def to_2tuple(x):
     return (x, x) if isinstance(x, int) else x
 
 def trunc_normal_(tensor, mean=0., std=1., a=-2., b=2.):
-    """
-    用截断正态分布初始化一个张量。
-    mean: 均值
-    std: 标准差
-    a: 下截断限
-    b: 上截断限
-    """
-    # 使用 torch.no_grad()，避免对 requires_grad=True 的张量进行 in-place 操作
+
     with torch.no_grad():
         def norm_cdf(x):
-            # 标准正态分布的累积分布函数
             return (1. + math.erf(x / math.sqrt(2.))) / 2.
 
-        # 用 std 正态分布的 cdf 计算 truncation limits
         l = norm_cdf((a - mean) / std)
         u = norm_cdf((b - mean) / std)
 
@@ -35,11 +26,10 @@ def trunc_normal_(tensor, mean=0., std=1., a=-2., b=2.):
         # inverse cdf for gaussian
         tensor.erfinv_()
 
-        # 转换为截断的正态分布
+
         tensor.mul_(std * math.sqrt(2.))
         tensor.add_(mean)
 
-        # 将小于截断值的数置为截断值
         tensor.clamp_(min=a, max=b)
     
     return tensor
@@ -91,37 +81,37 @@ class Mlp(nn.Module):
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
         
-        # 原始的 MLP 层
+
         self.fc1 = nn.Linear(in_features, hidden_features)
         self.fc2 = nn.Linear(hidden_features, out_features)
         self.act = act_layer()
         self.drop = nn.Dropout(drop)
 
-        # 重参数化分支
+
         self.branches_fc1 = None
         self.branches_fc2 = None
-        self.num_branches = 0  # 默认没有分支
+        self.num_branches = 0 
 
     def forward(self, x):
         if self.branches_fc1 is None and self.branches_fc2 is None:
-            # 没有重参数化分支，使用原始的 MLP
+
             x = self.fc1(x)
             x = self.act(x)
             x = self.drop(x)
             x = self.fc2(x)
             return self.drop(x)
 
-        # 使用带有分支的重参数化逻辑
+
         out = self.fc1(x)
 
-        # 处理第一层的分支
+
         if self.branches_fc1 is not None:
             for branch in self.branches_fc1:
                 linear, bn = branch
                 branch_out = linear(x)
-                branch_out = branch_out.permute(0, 2, 1)  # 调整维度以符合 BatchNorm 的输入要求
+                branch_out = branch_out.permute(0, 2, 1) 
                 branch_out = bn(branch_out)
-                branch_out = branch_out.permute(0, 2, 1)  # 调整回原来的维度
+                branch_out = branch_out.permute(0, 2, 1)  
                 out += branch_out
 
         out = self.act(out)
@@ -129,7 +119,7 @@ class Mlp(nn.Module):
 
         out2 = self.fc2(out)
 
-        # 处理第二层的分支
+
         if self.branches_fc2 is not None:
             for branch in self.branches_fc2:
                 linear, bn = branch
@@ -142,16 +132,15 @@ class Mlp(nn.Module):
         return self.drop(out2)
 
     def expand(self, num_branches, alpha=0.99):
-        # """扩展多分支的线性层和 BN 层，对原始线性层参数乘以 alpha，剩下的均分到其他分支，最后一个分支通过减法计算"""
+
         if num_branches <= 0:
             return
 
         device = self.fc1.weight.device
 
-        # 确保 alpha 在合理范围内
         assert 0.0 <= alpha <= 1.0, "alpha 必须在 [0, 1] 之间"
 
-        # 原始权重乘以 alpha
+
         self.fc1.weight.data *= alpha
         if self.fc1.bias is not None:
             self.fc1.bias.data *= alpha
@@ -160,47 +149,46 @@ class Mlp(nn.Module):
         if self.fc2.bias is not None:
             self.fc2.bias.data *= alpha
 
-        # 剩余的权重均分给其他分支
+
         remaining_fraction = (1.0 - alpha) / num_branches
 
-        # 扩展并初始化第一层
         self.branches_fc1 = nn.ModuleList([
             nn.ModuleList([nn.Linear(self.fc1.in_features, self.fc1.out_features), nn.BatchNorm1d(self.fc1.out_features)])
             for _ in range(num_branches)
         ]).to(device)
         
-        # 为前 num_branches - 1 个分支均分剩余权重
+
         for i, branch in enumerate(self.branches_fc1):
             linear, bn = branch
-            if i < num_branches - 1:  # 对前 num_branches - 1 个分支均分
+            if i < num_branches - 1:  
                 linear.weight.data.copy_(self.fc1.weight.data * remaining_fraction / alpha)
                 if self.fc1.bias is not None:
                     linear.bias.data.copy_(self.fc1.bias.data * remaining_fraction / alpha)
                 else:
                     linear.bias.data.zero_()
-            else:  # 最后一个分支，重新计算其参数
+            else:  
                 linear.weight.data.copy_(self.fc1.weight.data / alpha * (1-alpha) - sum([b[0].weight.data for b in self.branches_fc1[:-1]]))
                 if self.fc1.bias is not None:
                     linear.bias.data.copy_(self.fc1.bias.data / alpha * (1-alpha) - sum([b[0].bias.data for b in self.branches_fc1[:-1]]))
                 else:
                     linear.bias.data.zero_()
 
-        # 扩展并初始化第二层
+
         self.branches_fc2 = nn.ModuleList([
             nn.ModuleList([nn.Linear(self.fc2.in_features, self.fc2.out_features), nn.BatchNorm1d(self.fc2.out_features)])
             for _ in range(num_branches)
         ]).to(device)
 
-        # 为前 num_branches - 1 个分支均分剩余权重
+
         for i, branch in enumerate(self.branches_fc2):
             linear, bn = branch
-            if i < num_branches - 1:  # 对前 num_branches - 1 个分支均分
+            if i < num_branches - 1: 
                 linear.weight.data.copy_(self.fc2.weight.data * remaining_fraction / alpha)
                 if self.fc2.bias is not None:
                     linear.bias.data.copy_(self.fc2.bias.data * remaining_fraction / alpha)
                 else:
                     linear.bias.data.zero_()
-            else:  # 最后一个分支，重新计算其参数
+            else:  
                 linear.weight.data.copy_(self.fc2.weight.data / alpha * (1-alpha) - sum([b[0].weight.data for b in self.branches_fc2[:-1]]))
                 if self.fc2.bias is not None:
                     linear.bias.data.copy_(self.fc2.bias.data / alpha * (1-alpha) - sum([b[0].bias.data for b in self.branches_fc2[:-1]]))
@@ -211,7 +199,7 @@ class Mlp(nn.Module):
 
 
     def merge(self):
-        """将多分支的线性层和 BN 层合并回原始的 MLP 层"""
+
         if self.branches_fc1 is not None:
             with torch.no_grad():
                 for branch in self.branches_fc1:
@@ -230,12 +218,12 @@ class Mlp(nn.Module):
                     if self.fc2.bias is not None:
                         self.fc2.bias += bias
 
-        # 清除分支
+
         self.branches_fc1 = None
         self.branches_fc2 = None
 
     def _fuse_bn(self, weight, bias, bn):
-        """将分支中的线性层和 BN 层融合成一个权重和偏置"""
+
         bn_mean = bn.running_mean
         bn_var_sqrt = torch.sqrt(bn.running_var + bn.eps)  # std
         bn_weight = bn.weight                              # gamma
@@ -261,9 +249,9 @@ class Attention(nn.Module):
     def forward(self, x):
         B, N, C = x.shape
         qkv = self.qkv(x).reshape(B, N, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
-        q, k, v = qkv[0], qkv[1], qkv[2]  # 分别得到查询(Query)，键(Key)，值(Value)
+        q, k, v = qkv[0], qkv[1], qkv[2]  
         
-        attn = (q @ k.transpose(-2, -1)) * self.scale  # 计算注意力权重
+        attn = (q @ k.transpose(-2, -1)) * self.scale  
         attn = attn.softmax(dim=-1)
         attn = self.attn_drop(attn)
 
@@ -284,15 +272,15 @@ class Block(nn.Module):
 
     def forward(self, x):
         x = x + self.drop_path(self.attn(self.norm1(x)))
-        x = x + self.drop_path(self.mlp(self.norm2(x)))  # 在进入 MLP 之前使用 norm2 进行归一化
+        x = x + self.drop_path(self.mlp(self.norm2(x))) 
         return x
 
     def expand(self, num_branches):
-        """扩展 Mlp 类中的分支"""
+
         self.mlp.expand(num_branches)
 
     def merge(self):
-        """合并 Mlp 类中的分支"""
+
         self.mlp.merge()
 
 class VisionTransformer(nn.Module):
@@ -352,16 +340,16 @@ class VisionTransformer(nn.Module):
         return self.head(x[:, 0])
 
     def expand(self, num_branches):
-        """扩展所有 Block 中的 Mlp 分支"""
+
         for blk in self.blocks:
             blk.expand(num_branches)
 
     def merge(self):
-        """合并所有 Block 中的 Mlp 分支"""
+
         for blk in self.blocks:
             blk.merge()
     def get_num_params(self):
-        """返回模型的参数总数"""
+
         return sum(p.numel() for p in self.parameters() if p.requires_grad)
 
 
@@ -371,7 +359,7 @@ class VisionTransformer(nn.Module):
 def test_expand_and_merge():
     model = VisionTransformer(img_size=224, patch_size=16, in_chans=3, num_classes=1000, embed_dim=768, depth=12).train()
 
-    input_tensor = torch.randn(20, 3, 224, 224)  # 模拟输入图像
+    input_tensor = torch.randn(20, 3, 224, 224) 
 
     _ = model(input_tensor)
     _ = model(input_tensor)
@@ -379,20 +367,20 @@ def test_expand_and_merge():
 
     model.eval()
 
-    # 扩增前输出
+
     output_before_expand = model(input_tensor)
 
-    # 扩展模型
+
     model.expand(4)
 
-    # 扩增后的输出
+
     model.eval()
     output_after_expand = model(input_tensor)
 
-    # 合并模型
+
     model.merge()
 
-    # 合并后的输出
+
     model.eval()
     output_after_merge = model(input_tensor)
     print('The difference: ', (output_after_expand-output_before_expand).abs().sum())
@@ -401,16 +389,15 @@ def test_expand_and_merge():
 
     print('The difference: ', (output_after_merge-output_before_expand).abs().sum())
 
-    # assert torch.allclose(output_before_expand, output_after_expand, atol=1e-5), "扩增前后的输出应该相同"
-    # assert torch.allclose(output_after_expand, output_after_merge, atol=1e-5), "合并前后的输出应该相同"
-
-    print("扩增和合并测试成功！")
+    # assert torch.allclose(output_before_expand, output_after_expand, atol=1e-5), 
+    # assert torch.allclose(output_after_expand, output_after_merge, atol=1e-5), 
 
 
 
-# 定义测试函数
+
+
 def test_mlp_expand_and_merge():
-    # 创建一个 MLP 实例，输入特征 128，隐藏特征 256，输出特征 128
+
 
     mlp = Mlp(in_features=128, hidden_features=256, out_features=128).train()
     input = torch.randn(4, 196, 128)
@@ -419,22 +406,22 @@ def test_mlp_expand_and_merge():
     _ = mlp(input)
     _ = mlp(input)
 
-    mlp.eval()  # 切换到 eval 模式，关闭 dropout
+    mlp.eval() 
 
-    # 扩增前的输出
+
     output_before_expand = mlp(input)
 
-    # 扩展 MLP，增加 2 个分支
+
     mlp.expand(2)
 
-    # 扩增后的输出
+
     mlp.eval()
     output_after_expand = mlp(input)
 
-    # 合并 MLP
+
     mlp.merge()
 
-    # 合并后的输出
+
     mlp.eval()
     output_after_merge = mlp(input)
 
@@ -444,13 +431,8 @@ def test_mlp_expand_and_merge():
 
     print('The difference: ', (output_after_merge-output_before_expand).abs().sum())
 
-    # # 检查扩增前后的输出是否一致
-    # assert torch.allclose(output_before_expand, output_after_expand, atol=1e-5), \
-    #     "扩增前后的输出应该相同"
-    # assert torch.allclose(output_after_expand, output_after_merge, atol=1e-5), \
-    #     "合并前后的输出应该相同"
 
-    print("MLP 扩增和合并测试成功！")
+
 
 
     model = Mlp(in_features=192, hidden_features=384, out_features=192)
@@ -468,17 +450,17 @@ def test_mlp_expand_and_merge():
     output2 = model(input)
     print('The difference: ', (output1-output2).abs().sum())
 
-# 运行测试
-# test_mlp_expand_and_merge()
 
 
-# 运行测试
-# test_expand_and_merge()
+
+
+
+
     
 
 
 if __name__ == "__main__":
-    # 使用示例：创建 ViT 模型，控制扩增数目，显示参数量
+
     model = VisionTransformer(
             img_size=224,
             patch_size=16,
@@ -494,34 +476,8 @@ if __name__ == "__main__":
     input_tensor = torch.randn(1, 3, 224, 224)  # 模拟输入图像
 
 
-    # model.eval()
-    # output_before_expand = model(input_tensor)
-    # # 扩展模型
-    # model.expand(2)
 
-    # # 扩增后的输出
-    # output_after_expand = model(input_tensor)
-
-    # # 合并模型
-    # model.merge()
-
-    # # 合并后的输出
-    # output_after_merge = model(input_tensor)
-
-    # print(output_after_merge)
-    # print('The difference: ', (output_after_expand-output_before_expand).abs().sum())
-
-    # print('The difference: ', (output_after_merge-output_after_expand).abs().sum())
-
-    # print('The difference: ', (output_after_merge-output_before_expand).abs().sum())
-
-    # 打印扩增前的参数量
-    print("参数量 (扩增前):", model.get_num_params())
 
     model.expand(num_branches = 7)
-    # 打印扩增后的参数量
-    print("参数量 (扩增后):", model.get_num_params())
     
     model.merge()
-    # 打印合并后的参数量
-    print("参数量 (合并):", model.get_num_params())
